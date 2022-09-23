@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>选择器</title>
+		<style>
+			/*全局选择器 全局背景修改*/
+			* {
+				background-color: beige;
+			}
+			
+			/*标签选择器*/
+			p {
+				color:red;
+			}
+			
+			/*类选择器*/
+			.first {
+				color:yellow;
+				/*设置文本距离左边20px*/
+				text-indent: 20px;
+				/*font-size:20px;*/
+			}
+			/*id选择器*/
+			#second {
+				color:white;
+				background-color: hotpink;
+			}
+			/*属性选择器   p标签选择器,name是p标签里面属性*/
+			p[name] {
+				color:darkolivegreen;
+			}
+			/*单独设置name属性是good2的样式*/
+			p[name='good2'] {
+				background-color: chocolate;
+				color:#FFFFFF;
+			}
+			/*包含选择器*/
+			#box > span {
+				color:brown;
+				background-color: hotpink;
+			}
+			/*组合选择器*/
+			/*div,p,span {
+				font-size:50px;
+			}*/
+	
+			}
+		</style>
+	</head>
+	<body>
+		<p class="first">怅卧新春白袷衣,</p>
+		<p id="second">白门寥落意多违。</p>
+		<p class="first">红楼隔雨相望冷，</p>
+		<p name="good">珠箔飘灯独自归。</p>
+ 		<p name="good2">远路应悲春晼晚，</p>
+		<p name="good3">残宵犹得梦依稀。</p>
+		<p>玉珰缄札何由达，万里云罗一雁飞。</p>
+		
+	<div id="box">
+		<span>国破山河在，城春草木深。</span>
+		<p>感时花溅泪，恨别鸟惊心。</p>
+	</div>	
+		
+	</body>
+</html>

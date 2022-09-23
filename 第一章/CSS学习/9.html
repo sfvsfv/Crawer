@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html> 
+	<head>
+		<meta charset="UTF-8">
+		<title>内嵌样式</title>
+		<style>
+			/*标签选择器*/
+			body {
+				background-color:yellow;
+			}
+			
+			/*类选择器*/
+			/*.one {
+				color:black;
+				font-size:50px;
+				text-align: center;
+			}
+			#two {
+				color:black;
+				font-size: 50px;
+				text-align: center;
+			}*/
+			
+			/*要求格式一样,所以可以合并写*/
+			.one,#two{
+				color:black;
+				font-size: 50px;
+				text-align: center;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="one">白日依山尽，黄河入海流。</div>
+		<div id="two">欲穷千里目，更上一层楼。</div>
+	</body>
+</html>

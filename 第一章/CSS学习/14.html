@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>文本属性</title>
+		<style>
+			/*标签选择器*/
+			p {
+				/*1.文本装饰
+				 none:正常的
+				 blink:文本闪烁，有些浏览器不兼容
+				 overline:上划线
+				 underline:下划线
+				 line-through:删除线
+				 */
+				text-decoration: line-through;
+
+				/*文本缩进 中文一般2em*/
+				text-indent: 2em;
+
+				/*文本对齐方式 
+				 left:左对齐
+				 right:右对齐
+				 center:居中对齐
+				 justify:两端对齐
+				 */
+				text-align: center;
+
+				/*大小写字母的转换*/
+				text-transform: capitalize;
+
+				/*文本对齐方式 
+				 ltr:默认左对齐
+				 rtl:右对齐
+				 */
+				direction: ltr;
+
+				/*设置单个字符间距*/
+				letter-spacing: 10px;
+
+				/*设置单个单词间距*/
+				word-spacing: 30px;
+			}
+		</style>
+	</head>
+	<body>
+		<p> 向晚意不适，驱车登古原。</p>
+		<p>夕阳无限好，只是近黄昏。</p>
+	</body>
+</html>

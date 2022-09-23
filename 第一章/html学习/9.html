@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>表单标签</title>
+	</head>
+	<body>
+		<!--submit提交表单触发表单提交事件 onsubmit 对提交数据进行验证-->
+		<form  method="post" enctype="multipart/form-data" onsubmit="return checkData();">
+			<!--表单内容放在一个表格中-->
+			<table border='1' width='800px' align="center">
+				<tr>
+					<td>姓名:
+					<!--name属性名后台接收数据的标识,id一般javascript做数据效验用-->
+					<!--text文本输入框-->
+					<!--size:设置文本框最大宽度,maxlength允许输入的字符个数-->
+					<input type="text" name="username" id="user" size='30' maxlength="8"/>
+					</td>
+				</tr>
+				
+				<tr>
+					<td>
+					<!--password密码输入框-->
+					密码: <input type="password" name="pwd" id="pwd" size='30'/>
+					</td>
+				</tr>
+				
+				<tr>
+					<td>
+					<!--单项输入框
+					checked = 'checked'
+					
+					-->
+					性别:<input type="radio" name="sex" value="1" />男
+					<input type="radio" name="sex" value="2" checked="checked"/>女
+	
+					</td>
+				</tr>
+				
+				<tr>
+					<td>
+					<!--复选框-->
+					爱好:
+					<input type="checkbox" name="hobby" value="1" />python
+					<input type="checkbox" name="hobby" value="2" />王者荣耀
+					<input type="checkbox" name="hobby" value="3" checked="checked"/>吃鸡
+					<input type="checkbox" name="hobby" value="4" />锻炼
+					</td>
+				</tr>
+				
+				<tr>
+					<td>
+					上传照片:<input type="file" name="file" id='file'/>
+					</td>
+				</tr>
+				
+				<tr>
+					<td>
+					邮箱:<input type="email"  name="email" id="email"/>
+					</td>
+				</tr>
+				
+				<tr>
+					<td>
+					日期:<input type="date"  name="date" />
+					</td>
+				</tr>
+				
+				
+				<tr>
+					<td>
+					<!--下拉选项框
+					selected='selected'
+					-->
+					籍贯:
+					<select name="province">
+					<option value="">请选择</option>
+					<!--selected="selected">如果不选则设置默认-->
+					<option value='1' selected="selected">上海</option>
+					<option value='2'>北京</option>
+					<option value='3'>四川</option>
+					<option value='4'>云南</option>
+					<option value='5'>江西</option>
+					</select>
+					</td>
+				</tr>
+
+				
+				<tr>
+					<td>
+					<!--提交和重置按钮-->
+					<input type="submit" value='提交' />
+					<input type="reset" value='重置' />
+					</td>
+				</tr>
+				
+			</table>	
+			
+		</form>
+		
+	</body>
+</html>
+
+<

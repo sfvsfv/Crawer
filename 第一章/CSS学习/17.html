@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>照片墙</title>
+		<style>
+			/*id选择器*/
+			#box {
+				width:80%;
+				background-color: orange;
+				/*内容居中显示*/
+				margin:0 auto;
+			}
+			/*包含选择器*/
+			#box > img {
+				width:200px;
+				height:250px;
+				margin:30px;
+
+				/*设置旋转的起点*/
+				transform-origin: center;
+
+				/*设置过渡的时间*/
+				transition-duration: 2s;
+				transition-property: all;
+			}
+			/*需要对每张图片单独设置效果*/
+			/*transform: rotate用于设置旋转角度*/
+			#box > img:nth-child(1) {
+				transform: rotate(20deg);
+			}
+			#box > img:nth-child(2) {
+				transform: rotate(-20deg);
+			}
+			#box > img:nth-child(3) {
+				transform: rotate(20deg);
+			}
+			#box > img:nth-child(4) {
+				transform: rotate(-20deg);
+			}
+			#box > img:nth-child(5) {
+				transform: rotate(20deg);
+			}
+			#box > img:nth-child(6) {
+				transform: rotate(-20deg);
+			}
+			#box > img:nth-child(7) {
+				transform: rotate(20deg);
+			}
+			#box > img:nth-child(8) {
+				transform: rotate(-20deg);
+			}
+			
+			/*鼠标放到图片上面旋转30deg,图片放大1.5倍*/
+			 /*transform: scaleY表示缩放倍数*/
+			#box > img:hover {
+				transform: rotate(30deg) scale(1.5);
+			}
+		</style>
+	</head>
+	<body>
+		<div id="box">
+			<img src="img/1.jpg" />
+			<img src="img/2.jpg" />
+			<img src="img/3.jpg" />
+			<img src="img/4.jpg" />
+			<img src="img/5.jpg" />
+			<img src="img/6.jpg" />
+			<img src="img/7.jpg" />
+			<img src="img/8.jpg" />
+		</div>
+	</body>
+</html>

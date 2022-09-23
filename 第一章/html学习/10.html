@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>合并</title>
+	</head>
+		
+		<!--1.按照行进行划分-->
+		<!--<frameset rows="20%,40%,40%">
+		<frame src="1.html"/>
+		<frame src="2.html" />
+		<frame src="3.html" />
+		</frameset>-->
+		
+		
+		<!--2.按照列进行划分-->
+		<!--<frameset cols="50%,50%">
+		<frame src="1.html"/>
+		<frame src="2.html" />
+		</frameset>
+		-->
+		
+		<!--混合使用-->
+		<frameset rows="20%,40%,40%">
+		<!--相当于头部文件-->
+		<frame src="1.html"/>
+		<frameset cols="20%,*">
+		<!--相当于左侧导航-->
+		<frame src="2.html"  target="main"/>
+		<!--相当于右侧主工作区域-->
+		<frame src="3.html"  name="main"/>
+		</frameset>
+		<frame src="4.html"/>
+		</frameset>
+		
+
+</html>

@@ -1,0 +1,10 @@
+			body {
+						background-color:yellow;
+				}
+		
+			/*要求格式一样,所以可以合并写*/
+			.one,#two{
+				color:black;
+				font-size: 50px;
+				text-align: center;
+			}
