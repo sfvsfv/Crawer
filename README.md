@@ -2,6 +2,11 @@
 Python从入门到实战配套程序代码，书籍更正，代码更正，项目补充。
 
 
+
+京东购买地址如下：
+https://item.jd.com/14049708.html
+购买后请下方加我微信，邀请你到读者售后群，方便交流。
+
 <!-- 
 参考更新仓库：
 https://github.com/wistbean/learn_python3_spider
