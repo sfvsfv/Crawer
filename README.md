@@ -1,6 +1,13 @@
 # 爬虫书籍售后、内容纠错、代码更新、爬虫项目分析
 Python从入门到实战配套程序代码，书籍更正，代码更正，项目补充。
 
+
+<!-- 
+参考更新仓库：
+https://github.com/wistbean/learn_python3_spider
+https://github.com/xingag/spider_python
+--> 
+
 ## 本书代码售后答疑
 希望本书的内容能够教会你学习爬虫的方法，而不是复制粘贴代码。书籍中难免有表述错误的地方，如果有疑问，你可以与我联系。
 <br><br>
