@@ -16,6 +16,7 @@ Python从入门到实战配套程序代码
 ## 爬虫项目
 ### 艺术二维码制作
 99一个二维码，还售罄？？
+<br>
 ![image](https://github.com/sfvsfv/Crawer/assets/62045791/8d9a74ec-4675-4320-b90a-4a8c651e4a56)
 <br>
 不存在，只需要不到一毛钱成本就可以制作完成。到知数云https://data.zhishuyun.com/services ，申请艺术二维码API，可免费体验20次：
