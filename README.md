@@ -85,3 +85,156 @@ else:
     print("未找到图像URL")
 ```
 
+### 中国大学生排名
+
+```csharp
+# coding= gbk
+import pandas as pd
+import csv
+import requests
+from requests.exceptions import RequestException
+from bs4 import BeautifulSoup
+import time
+from selenium.webdriver.chrome.service import Service  # 新增
+from selenium.webdriver.common.by import By
+
+# start_time = time.time()  # 计算程序运行时间
+
+
+# 获取网页内容
+def get_one_page(year):
+    try:
+        headers = {
+            'User-Agent':
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36'
+        }
+
+        #  https://www.shanghairanking.cn/rankings/bcur/%s11
+        url = 'https://www.shanghairanking.cn/rankings/bcur/%s11' % (str(year))
+        # print(url)
+
+        response = requests.get(url, headers=headers)
+        if response.content is not None:
+            content = response.content.decode('utf-8')
+            # print(content.encode('gbk', errors='ignore').decode('gbk'))
+            return content.encode('gbk', errors='ignore').decode('gbk')
+        else:
+            content = ""
+            return content.encode('gbk', errors='ignore').decode('gbk')
+            # print(content.encode('gbk', errors='ignore').decode('gbk'))
+
+    except RequestException:
+        print('爬取失败')
+
+
+def extract_university_info(data):
+    soup = BeautifulSoup(data, 'html.parser')
+    table = soup.find('table', {'data-v-4645600d': "", 'class': 'rk-table'})
+    tbody = table.find('tbody', {'data-v-4645600d': ""})
+    rows = tbody.find_all('tr')
+
+    university_info = []
+    for row in rows:
+        rank = row.find('div', {'class': 'ranking'}).text.strip()
+        univ_name_cn = row.find('a', {'class': 'name-cn'}).text.strip()
+        univ_name_en = row.find('a', {'class': 'name-en'}).text.strip()
+        location = row.find_all('td')[2].text.strip()
+        category = row.find_all('td')[3].text.strip()
+        score = row.find_all('td')[4].text.strip()
+        rating = row.find_all('td')[5].text.strip()
+
+        info = {
+            "排名": rank,
+            "名称": univ_name_cn,
+            "Name (EN)": univ_name_en,
+            "位置": location,
+            "类型": category,
+            "总分": score,
+            "评分": rating
+        }
+
+        university_info.append(info)
+        # 打印数据
+        print(
+            f"排名: {rank}, 名称: {univ_name_cn}, Name (EN): {univ_name_en}, 位置: {location}, 类型: {category}, 总分: {score}, 评分: {rating}"
+        )
+
+    return university_info
+
+
+# data = get_one_page(2023)
+# 获取一个页面内容
+# print(extract_university_info(data))
+
+def get_total_pages(pagination_html):
+    soup = BeautifulSoup(pagination_html, 'html.parser')
+    pages = soup.find_all('li', class_='ant-pagination-item')
+    if pages:
+        return int(pages[-1].text)
+    return 1
+
+
+html = get_one_page(2023)
+
+
+def get_data_from_page(data):
+    content = extract_university_info(data)
+    return content
+
+
+
+total_pages = get_total_pages(html)
+# print(total_pages)
+
+
+
+
+def write_to_csv(data_list, filename='output.csv'):
+    # 检查文件是否存在，以决定是否写入表头
+    file_exists = False
+    try:
+        with open(filename, 'r', encoding='utf-8'):
+            file_exists = True
+    except FileNotFoundError:
+        pass
+
+    with open(filename, 'a', newline='', encoding='utf-8') as csvfile:
+        fieldnames = ["排名", "名称", "Name (EN)", "位置", "类型", "总分", "评分"]
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+        if not file_exists:
+            writer.writeheader()  # 写入表头
+        for data in data_list:
+            writer.writerow(data)
+
+
+
+
+from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.keys import Keys
+
+service = Service(executable_path='chromedriver.exe')
+browser = webdriver.Chrome(service=service)
+browser.get("https://www.shanghairanking.cn/rankings/bcur/202311")
+
+for page in range(1, total_pages + 1):
+    jump_input_locator = browser.find_element(By.XPATH, '//div[@class="ant-pagination-options-quick-jumper"]/input')
+    jump_input = WebDriverWait(browser, 10).until(
+        EC.element_to_be_clickable(jump_input_locator)
+    )
+    jump_input.clear()
+
+    jump_input.send_keys(page)  # 输入页码
+    jump_input.send_keys(Keys.RETURN)  # 模拟 Enter 键
+    time.sleep(3)  # 等待页面加载
+
+    html = browser.page_source
+    content = get_data_from_page(html)
+    write_to_csv(content)
+
+time.sleep(3)
+browser.quit()
+```
+
