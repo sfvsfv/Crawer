@@ -37,6 +37,13 @@ https://github.com/xingag/spider_python
 
 参考代码如下，你只需要修改token为你自己的token即可：
 ```csharp
+# coding=gbk
+'''
+作者：川川
+书籍： Python网络爬虫入门到实战
+京东地址：https://item.jd.com/14049708.html
+'''
+
 import requests
 
 url = "https://api.zhishuyun.com/qrart/generate?token=你自己的token"
@@ -88,7 +95,13 @@ else:
 ### 中国大学生排名
 
 ```csharp
-# coding= gbk
+# coding=gbk
+'''
+作者：川川
+书籍： Python网络爬虫入门到实战
+京东地址：https://item.jd.com/14049708.html
+'''
+
 import pandas as pd
 import csv
 import requests
@@ -236,5 +249,59 @@ for page in range(1, total_pages + 1):
 
 time.sleep(3)
 browser.quit()
+```
+
+## cookies登录CSDN
+### 获取cookie
+
+```csharp
+# coding=gbk
+'''
+作者：川川
+书籍： Python网络爬虫入门到实战
+京东地址：https://item.jd.com/14049708.html
+'''
+from selenium import webdriver
+import json
+from selenium.webdriver.chrome.service import Service  # 新增
+import time
+service = Service(executable_path='chromedriver.exe')
+browser = webdriver.Chrome(service=service)
+
+
+browser.get("https://www.csdn.net/")
+
+print('请在十秒内扫码登录')
+time.sleep(10)
+
+dictCookies = browser.get_cookies()
+jsonCookies = json.dumps(dictCookies)
+
+with open('cookies.txt', 'w') as f:
+    f.write(jsonCookies)
+print('cookies保存成功！')
+```
+### 登录
+
+```csharp
+# coding=gbk
+'''
+作者：川川
+书籍： Python网络爬虫入门到实战
+京东地址：https://item.jd.com/14049708.html
+'''
+
+import json
+from selenium import webdriver
+import time
+
+browser = webdriver.Chrome()
+with open('cookies.txt', 'r', encoding='u8') as f:
+    cookies = json.load(f)
+browser.get("https://www.csdn.net/")
+for cookie in cookies:
+    browser.add_cookie(cookie)
+browser.get("https://www.csdn.net/")
+time.sleep(10)
 ```
 
