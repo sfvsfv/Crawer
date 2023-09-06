@@ -309,3 +309,115 @@ browser.get("https://www.csdn.net/")
 time.sleep(10)
 ```
 
+## 彼岸网美女桌面壁纸下载
+```csharp
+# coding=gbk
+'''
+作者：川川
+书籍： Python网络爬虫入门到实战
+京东地址：https://item.jd.com/14049708.html
+'''
+
+import requests
+import re
+import time
+import os
+
+
+# 请求函数
+def request_get(url, ret_type="text", timeout=5, encoding="GBK"):
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36"
+    }
+    res = requests.get(url=url, headers=headers, timeout=timeout)
+    res.encoding = encoding
+    if ret_type == "text":
+        return res.text
+    elif ret_type == "image":
+        return res.content
+
+
+# 字符串索引，获取重点源码部分
+def split_str(text, s_html, e_html):
+    # text为完整源码，获取列表的源码
+    start = text.find(s_html) + len(e_html)
+    end = text.find(e_html)
+    # 索引读取
+    origin_text = text[start:end]
+
+    return origin_text
+
+
+def format_detail(text):
+    # 传入一张的源码  获取链接
+    origin_text = split_str(text, '<div class="pic">', '<div class="pic-down">')
+    # 写正则表达式
+    pattern = re.compile('src="(.*?)"')
+    # 正在匹配
+    image_src = pattern.search(origin_text).group(1)
+    print('图片链接')
+    print(image_src)
+    # 保存图片
+    save_image(image_src)
+
+
+# 解析函数,获取正确的下载地址
+def format(text):
+    # 获取列表部分所有源码
+    origin_text = split_str(text, '<div class="list">', '<div class="page">')
+    # 写正则
+    pattern = re.compile('href="(.*?)"')
+    # 匹配出图片链接所有href,是个列表
+    hrefs = pattern.findall(origin_text)
+    # 筛选出那些包含子字符串 "desk" 的元素,否则不是图片链接
+    hrefs = [i for i in hrefs if i.find("desk") > 0]
+    # print('看看')
+    # print(hrefs)
+    for href in hrefs:
+        # 得到每一张图片链接
+        url = f"http://www.netbian.com{href}"
+        print(f"正在下载页面：{url}")
+        # 请求这一页的源码
+        text = request_get(url)
+        # 解析这一页的内容
+        format_detail(text)
+        return text
+
+
+# 存储函数
+def save_image(image_src):
+    # 文件夹名
+    folder_name = 'downloaded_images'
+    if not os.path.exists(folder_name):
+        os.makedirs(folder_name)
+
+    content = request_get(image_src, "image")
+    # 用时间戳来给文件命名
+    file_name = f"{str(time.time())}.jpg"
+    # 创建路径
+    file_path = os.path.join(folder_name, file_name)
+    # 写入文件
+    with open(file_path, "wb") as f:
+        f.write(content)
+        print(f"图片保存成功: {file_path}")
+
+
+# 主函数
+def main():
+    urls = [f"http://www.netbian.com/mei/index_{i}.htm" for i in range(2, 201)]
+    for url in urls:
+        print('休息1s继续爬...')
+        time.sleep(1)
+        print("抓取列表页地址为：", url)
+        # 获取图片链接内容
+        text = request_get(url)
+        format(text)
+
+
+if __name__ == '__main__':
+    main()
+
+
+```
+
+
