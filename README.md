@@ -424,5 +424,33 @@ if __name__ == '__main__':
 
 
 ```
+## 构建代理池
+免费下载代理，筛选后以CSV格式导出：
+```
+https://geonode.com/free-proxy-list
+```
+留其中IP列即可，使用该CSV文件构建代理池,每次请求随意获取一个代理：
+```
+# coding=gbk
+'''
+https://geonode.com/free-proxy-list
+'''
+import csv
+from random import choice
+
+proxy_file_path = 'Proxy.csv'
+proxy_list = []
+
+with open(proxy_file_path, 'r') as csvfile:
+    csv_reader = csv.reader(csvfile)
+    next(csv_reader)
+    for row in csv_reader:
+        if row:
+            proxy_list.append(row[0])
+
+random_proxy = choice(proxy_list)
+
+print(random_proxy)
+```
 
 
