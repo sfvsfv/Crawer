@@ -51,6 +51,7 @@ https://github.com/xingag/spider_python
 作者：川川
 书籍： Python网络爬虫入门到实战
 京东地址：https://item.jd.com/14049708.html
+分析文章：https://blog.csdn.net/weixin_46211269/article/details/132537579
 '''
 
 import requests
@@ -103,7 +104,7 @@ else:
 
 ### 中国大学生排名
 注意：这里使用selenium最新版4.0+，否则小部分语法不支持。
-
+分析文章：https://blog.csdn.net/weixin_46211269/article/details/132680063
 ```csharp
 # coding=gbk
 '''
@@ -262,10 +263,12 @@ browser.quit()
 ```
 
 ## cookies登录CSDN
+
 ### 获取cookie
 
 ```csharp
 # coding=gbk
+分析文章：https://blog.csdn.net/weixin_46211269/article/details/132701932
 '''
 作者：川川
 书籍： Python网络爬虫入门到实战
@@ -456,6 +459,7 @@ print(random_proxy)
 
 ## 抓取网页所有图片
 
+
 原理：抓取该链接中所有的图片格式。基于selenium来获取，自动下载到output文件夹中。
 
 ```csharp
@@ -601,3 +605,107 @@ if __name__ == '__main__':
 ```
 结果如下：
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/96b3e29260e441b7805577fa8e2ce551.png)
+
+## 使用亮数据代理，抓取亚马逊iphone15数据
+分析文章：https://chuanchuan.blog.csdn.net/article/details/133129610
+
+完整代码如下所示：
+```
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+import time
+import csv
+import json
+import urllib.request
+
+
+# 获取动态IP
+def get_dynamic_ip():
+    opener = urllib.request.build_opener(
+        urllib.request.ProxyHandler(
+            {'http': 'http://brd-customer-hl_5dede465-zone-try-country-us:pdqt284jal8m@brd.superproxy.io:22225',
+             'https': 'http://brd-customer-hl_5dede465-zone-try-country-us:pdqt284jal8m@brd.superproxy.io:22225'}))
+
+    response = opener.open('http://lumtest.com/myip.json').read()
+    response_str = response.decode('utf-8')
+    ip = json.loads(response_str)['ip']
+    return ip
+
+
+# 使用动态IP配置WebDriver
+def configure_driver_with_proxy(ip):
+    PROXY = ip
+    chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument(f'--proxy-server={PROXY}')
+    # 初始化浏览器
+    driver = webdriver.Chrome()
+    return driver
+
+
+# 主逻辑
+ip = get_dynamic_ip()
+print(f"Using IP: {ip}")
+driver = configure_driver_with_proxy(ip)
+
+# 打开亚马逊网站
+driver.get("https://www.amazon.cn/")
+
+time.sleep(3)
+
+# 在搜索框中输入“iPhone 15”
+search_box = driver.find_element(By.ID, "twotabsearchtextbox")
+search_box.send_keys("iPhone 15")
+search_box.send_keys(Keys.RETURN)
+
+# 等待页面加载
+time.sleep(3)
+
+# 获取商品信息
+product_elements = driver.find_elements(By.CSS_SELECTOR, ".s-main-slot .s-result-item")
+
+# 创建CSV文件并写入数据
+with open('amazon_products_multiple_pages.csv', 'w', newline='', encoding='utf-8') as csvfile:
+    fieldnames = ['Title', 'Price', 'Image URL']
+    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    writer.writeheader()
+
+    # 循环遍历多个页面，使用代理的ip去爬多页
+    for page in range(1, 9):
+        time.sleep(2)
+        print(f"Scraping page {page}..")
+
+        # 获取商品信息
+        product_elements = driver.find_elements(By.CSS_SELECTOR, ".s-main-slot .s-result-item")
+
+        for index, product in enumerate(product_elements):
+            try:
+                title = product.find_element(By.CSS_SELECTOR, ".a-text-normal").text
+                price = product.find_element(By.CSS_SELECTOR, ".a-price-whole").text
+                image_url = product.find_element(By.CSS_SELECTOR, "img.s-image").get_attribute("src")
+
+                # print(f"Product {index + 1}:")
+                # print(f"Title: {title}")
+                # print(f"Price: {price} RMB")
+                # print(f"Image URL: {image_url}")
+
+                # 写入CSV文件
+                writer.writerow({'Title': title, 'Price': price, 'Image URL': image_url})
+
+            except Exception as e:
+                print(f"Skipping product {index + 1} due to missing information.")
+
+        # 点击“下一页”按钮
+        try:
+            next_button = driver.find_element(By.CSS_SELECTOR, ".s-pagination-next")
+            next_button.click()
+            time.sleep(3)  # 等待下一页加载
+        except Exception as e:
+            print("No more pages to scrape.")
+            break
+
+time.sleep(10)
+# 关闭浏览器
+driver.quit()
+```
+
