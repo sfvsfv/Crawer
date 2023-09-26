@@ -520,3 +520,84 @@ print("Download Complete!!")
 ![运行结果](https://img-blog.csdnimg.cn/40a56fc77fa04529aaed0bd0fb622afc.png)
 
 
+
+## 抓取csdn单个用户所有文章信息
+```
+import requests
+import openpyxl
+import time
+
+# 定义全局请求头
+HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4542.2 Safari/537.36'}
+
+
+# 获取数据抓包，返回json数据集
+def getData(url, params):
+    response = requests.get(url, params=params, headers=HEADERS)
+    return response.json()
+
+
+# 获取文章数
+def getArticleCount(username):
+    url = 'https://blog.csdn.net/community/home-api/v1/get-tab-total'
+    params = {'username': username}
+    response = requests.get(url, params=params, headers=HEADERS)
+    return response.json()['data']['blog']
+
+
+# 保存json对象数据到excel中
+def saveData(url, username, save_path):
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = 'CSDN用户文章信息'
+
+    params = {'page': '1', 'size': '20', 'businessType': 'blog', 'noMore': 'false', 'username': username}
+    total_blogs = getArticleCount(username)
+    print('用户%s的博客数:%d' % (username, total_blogs))
+
+    for i in range(int(total_blogs / 20) + 1):
+        params['page'] = str(i + 1)
+        json_data = getData(url, params=params)
+
+        if i == 0:
+            ws.append(list(json_data['data']['list'][0].keys()))
+
+        for index, article in enumerate(json_data['data']['list'], start=i * 20 + 1):
+            values = [str(value) for value in article.values()]
+            ws.append(values)
+            print('正在爬取第%d篇文章' % index)
+
+            if index >= total_blogs:
+                break
+
+    wb.save(save_path)
+    print('爬取成功!!!')
+
+
+# 读取文件访问所有文章
+def read_excel(excelUrl, username):
+    wb = openpyxl.load_workbook(excelUrl)
+    ws = wb.active
+    rows = getArticleCount(username)
+
+    for row in ws.iter_rows(min_row=2, max_row=rows + 1, min_col=4, max_col=4):
+        for cell in row:
+            try:
+                requests.get(cell.value)
+                print('访问', cell.value, '成功', end='\t\t')
+            except requests.RequestException as e:
+                print('访问', cell.value, '失败', end='\t\t')
+        print()
+
+
+if __name__ == '__main__':
+    url = 'https://blog.csdn.net/community/home-api/v1/get-business-list'
+    # 强调：请在这里替换为你自己的用户名，就是主页的后缀
+    username = 'weixin_46211269'
+    save_path = './CSDN用户文章信息.xlsx'
+    saveData(url, username, save_path)
+    read_excel(save_path, username)
+```
+结果如下：
+![在这里插入图片描述](https://img-blog.csdnimg.cn/96b3e29260e441b7805577fa8e2ce551.png)
