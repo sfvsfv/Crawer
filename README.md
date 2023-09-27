@@ -709,3 +709,26 @@ time.sleep(10)
 driver.quit()
 ```
 
+
+如果打开遇到验证码，以下是解决的方案：
+```
+# 使用XPath定位图片并获取其src属性
+image_element = driver.find_element(By.XPATH, "/html/body/div/div[1]/div[3]/div/div/form/div[1]/div/div/div[1]/img")
+image_url = image_element.get_attribute('src')
+# 使用requests下载图片
+response = requests.get(image_url, stream=True)
+response.raise_for_status()
+# 保存图片到磁盘
+with open('c.png', 'wb') as file:
+    for chunk in response.iter_content(chunk_size=8192):
+        file.write(chunk)
+
+ocr = ddddocr.DdddOcr()
+with open('c.png', 'rb') as f:
+    img_bytes = f.read()
+res = ocr.classification(img_bytes)
+
+time.sleep(2)
+driver.find_element(By.XPATH, '//*[@id="captchacharacters"]').send_keys(res)
+driver.find_element(By.XPATH, '/html/body/div/div[1]/div[3]/div/div/form/div[2]/div/span/span/button').click()
+```
