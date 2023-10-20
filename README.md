@@ -1,3 +1,5 @@
+
+
 # 爬虫书籍售后、内容纠错、代码更新、爬虫项目拓展代码
 Python从入门到实战配套程序代码，书籍更正，代码更正，项目拓展。购买后请下方加我微信，邀请你到读者售后群，方便交流。由于部分同学访问github很慢甚至打不开，可以使用我的代码镜像仓库：https://www.github.cafe/sfvsfv/Crawer
 
@@ -17,7 +19,7 @@ https://github.com/wistbean/learn_python3_spider
 https://github.com/xingag/spider_python
 --> 
 
-## 本书代码售后答疑
+# 本书代码售后答疑
 希望本书的内容能够教会你学习爬虫的方法，而不是复制粘贴代码。书籍中难免有表述错误的地方，如果有疑问，你可以与我联系。
 <br><br>
 如果本仓库的代码过时等问题，你可以在此提Issues，也可以与联系出版社反馈，我将尽快的回答你，并且更新修复后的代码在本仓库。
@@ -34,8 +36,8 @@ https://github.com/xingag/spider_python
 
 1. P38页,最后一个段落中“因为链接样式的优先级高于内嵌样式”，这一句话错了。优先级依然是文首说到：内嵌式>导入式>链接式
 
-## 爬虫项目拓展
-### 艺术二维码制作
+# 爬虫项目拓展
+## 一、艺术二维码制作
 99一个二维码，还售罄？？
 <br>
 ![image](https://github.com/sfvsfv/Crawer/assets/62045791/8d9a74ec-4675-4320-b90a-4a8c651e4a56)
@@ -102,7 +104,7 @@ else:
     print("未找到图像URL")
 ```
 
-### 中国大学生排名
+## 二、中国大学生排名
 注意：这里使用selenium最新版4.0+，否则小部分语法不支持。
 分析文章：https://blog.csdn.net/weixin_46211269/article/details/132680063
 ```csharp
@@ -262,9 +264,9 @@ time.sleep(3)
 browser.quit()
 ```
 
-## cookies登录CSDN
+## 三、cookies登录CSDN
 
-### 获取cookie
+### 3.1 获取cookie
 
 ```csharp
 # coding=gbk
@@ -294,7 +296,7 @@ with open('cookies.txt', 'w') as f:
     f.write(jsonCookies)
 print('cookies保存成功！')
 ```
-### 登录
+### 3.2 登录
 
 ```csharp
 # coding=gbk
@@ -318,7 +320,7 @@ browser.get("https://www.csdn.net/")
 time.sleep(10)
 ```
 
-## 彼岸网美女桌面壁纸下载
+## 四、使用requests彼岸网美女桌面壁纸下载
 ```csharp
 # coding=gbk
 '''
@@ -428,7 +430,7 @@ if __name__ == '__main__':
 
 
 ```
-## 构建代理池
+## 五、构建代理池
 免费下载代理，筛选后以CSV格式导出：
 ```
 https://geonode.com/free-proxy-list
@@ -457,7 +459,7 @@ random_proxy = choice(proxy_list)
 print(random_proxy)
 ```
 
-## 抓取网页所有图片
+##  六、使用 BeautifulSoup和selenium4抓取网页所有图片
 
 
 原理：抓取该链接中所有的图片格式。基于selenium来获取，自动下载到output文件夹中。
@@ -525,7 +527,7 @@ print("Download Complete!!")
 
 
 
-## 抓取csdn单个用户所有文章信息
+## 七、抓取csdn单个用户所有文章信息
 ```
 import requests
 import openpyxl
@@ -606,7 +608,7 @@ if __name__ == '__main__':
 结果如下：
 ![在这里插入图片描述](https://img-blog.csdnimg.cn/96b3e29260e441b7805577fa8e2ce551.png)
 
-## 使用亮数据代理，抓取亚马逊iphone15数据
+## 八、使用代理和selenium，抓取亚马逊iphone15数据
 分析文章：https://chuanchuan.blog.csdn.net/article/details/133129610
 
 完整代码如下所示：
@@ -731,4 +733,43 @@ res = ocr.classification(img_bytes)
 time.sleep(2)
 driver.find_element(By.XPATH, '//*[@id="captchacharacters"]').send_keys(res)
 driver.find_element(By.XPATH, '/html/body/div/div[1]/div[3]/div/div/form/div[2]/div/span/span/button').click()
+```
+
+
+## 九、使用正则表达式爬取B彼岸网站美女壁纸
+
+```
+
+# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
+import requests
+import re
+
+# 设置保存路径
+path = './girl'
+# 目标url
+url = "http://pic.netbian.com/4kmeinv/index.html"
+# 伪装请求头  防止被反爬
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/21.0.1180.89 Safari/537.1",
+    "Referer": "http://pic.netbian.com/4kmeinv/index.html"
+}
+
+# 发送请求  获取响应
+response = requests.get(url, headers=headers)
+# 打印网页源代码来看  乱码   重新设置编码解决编码问题
+# 内容正常显示  便于之后提取数据
+response.encoding = 'GBK'
+
+# 正则匹配提取想要的数据  得到图片链接和名称
+img_info = re.findall('img src="(.*?)" alt="(.*?)" /', response.text)
+
+for src, name in img_info:
+    img_url = 'http://pic.netbian.com' + src  # 加上 'http://pic.netbian.com'才是真正的图片url
+    img_content = requests.get(img_url, headers=headers).content
+    img_name = name + '.jpg'
+    with open(path + img_name, 'wb') as f:  # 图片保存到本地
+        print(f"正在为您下载图片：{img_name}")
+        f.write(img_content)
+
 ```
