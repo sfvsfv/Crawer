@@ -773,3 +773,246 @@ for src, name in img_info:
         f.write(img_content)
 
 ```
+
+## 爬虫项目（10）：抓第三方网站接口，基于Flask搭建搭建一个AI内容识别平台
+视频讲解：https://www.bilibili.com/video/BV1xu4y177BC/?spm_id_from=333.999.0.0
+文章：https://chuanchuan.blog.csdn.net/article/details/134194689
+
+selenium实现：
+```csharp
+from flask import Flask, render_template, request
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from datetime import datetime
+from queue import Queue, Empty
+
+
+app = Flask(__name__)
+
+
+
+# 创建一个队列保存浏览器实例
+browser_queue = Queue(maxsize=2)  # 这里的maxsize可以根据你的需求调整
+
+
+def get_browser():
+    try:
+        browser = browser_queue.get_nowait()
+    except Empty:
+        if browser_queue.full():
+            old_browser = browser_queue.get()
+            old_browser.quit()
+        chrome_options = Options()
+        chrome_options.add_argument("--headless")
+        browser = webdriver.Chrome(options=chrome_options)
+    return browser
+
+
+def return_browser(browser):
+    # 将浏览器实例放回队列中
+    browser_queue.put(browser)
+
+
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    start_time = datetime.now()
+    result = None
+    time_elapsed = 0
+    if request.method == 'POST':
+        user_input = request.form.get('user_input')
+        if len(user_input) > 300:
+            return render_template('index.html', result="输入的文本超过了 300 个字符。", timeElapsed=time_elapsed)
+
+        browser = get_browser()  # 从队列中获取浏览器实例
+        try:
+            browser.get('https://writer.com/ai-content-detector/')
+            input_element = browser.find_element(By.XPATH, '/html/body/div[3]/div[2]/div[2]/div[1]/form/div[2]/textarea')
+            input_element.send_keys(user_input)
+
+            detect_button = browser.find_element(By.XPATH, '/html/body/div[3]/div[2]/div[2]/div[1]/form/button')
+            browser.execute_script("arguments[0].click();", detect_button)
+
+            WebDriverWait(browser, 10).until(
+                EC.visibility_of_element_located((By.ID, 'ai-percentage'))
+            )
+
+            percentage_element = browser.find_element(By.ID, 'ai-percentage')
+            result = f'AI生成百分比为: {percentage_element.text}%'
+        finally:
+            return_browser(browser)  # 将浏览器实例放回队列中
+
+        end_time = datetime.now()
+        time_elapsed = (end_time - start_time).seconds
+
+    return render_template('index.html', result=result, timeElapsed=time_elapsed)
+
+
+if __name__ == '__main__':
+    app.run(debug=False)
+```
+
+抓取接口进行实现，速度更快：
+
+```csharp
+from flask import Flask, render_template, request
+import requests
+from datetime import datetime
+
+app = Flask(__name__)
+
+HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36',
+    'Origin': 'https://writer.com',
+    'Referer': 'https://writer.com/ai-content-detector/',
+    'X-Requested-With': 'XMLHttpRequest',
+    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+    'Accept': 'text/plain, */*; q=0.01',
+    'Accept-Encoding': 'gzip, deflate, br',
+    'Accept-Language': 'zh-CN,zh;q=0.9',
+    'Sec-Ch-Ua': '"Chromium";v="118", "Google Chrome";v="118", "Not=A?Brand";v="99"',
+    'Sec-Ch-Ua-Mobile': '?0',
+    'Sec-Ch-Ua-Platform': 'Windows',
+    'Sec-Fetch-Dest': 'empty',
+    'Sec-Fetch-Mode': 'cors',
+    'Sec-Fetch-Site': 'same-origin',
+    'Cookie': 'mutiny.user.token=c64da415-54d0-4c6d-9795-122c6acc2ce2; _gcl_au=1.1.1398885097.1698945402; traffic_src={"ga_gclid":"","ga_source":"google","ga_medium":"organic","ga_campaign":"","ga_content":"","ga_keyword":"(not provided)","ga_landing_page":"https://writer.com/ai-content-detector/"}; _rdt_uuid=1698945402575.25da91b6-60f8-4a95-8224-b8a6b14cdbda; cb_user_id=null; cb_group_id=null; cb_anonymous_id=%2284aafc75-f11b-4644-8d6e-08bd275fd45a%22; _clck=2alrmh|2|fgd|0|1401; hubspotutk=ed3255630247916c775fae866532a97b; __hssrc=1; OptanonAlertBoxClosed=2023-11-02T17:18:18.959Z; ajs_user_id=null; ajs_group_id=null; ajs_anonymous_id=%229d688975-a06f-49e3-ac6c-c6525bfcbe77%22; _gid=GA1.2.788250116.1698945706; _ga_PTDL30YN61=GS1.2.1698945710.1.1.1698945716.54.0.0; _ga=GA1.1.439872204.1698945402; mutiny.user.session=2a4f8206-e4e8-40d6-a707-e30b55b7d96a; mutiny.user.session_number=1; __hstc=117297753.ed3255630247916c775fae866532a97b.1698945405358.1698952211562.1698954156966.4; wordpress_test_cookie=WP%20Cookie%20check; jetpack_sso_original_request=http%3A%2F%2Fwriter.com%2Fwp-login.php%3Fredirect_to%3Dhttps%253A%252F%252Fwriter.com%252Fwp-admin%252F%26reauth%3D1; jetpack_sso_redirect_to=https%3A%2F%2Fwriter.com%2Fwp-admin%2F; jetpack_sso_nonce=m6lxyej0gmnexusohi7w; tk_ai=fyx5WYo7VrrlSEGRPGoPSKer; _uetsid=97cd66e079a311eebddb6dbe9738e37e; _uetvid=adc4fce0e28811eda5d8dff742ed6907; OptanonConsent=isIABGlobal=false&datestamp=Fri+Nov+03+2023+03%3A55%3A15+GMT%2B0800+(%E4%B8%AD%E5%9B%BD%E6%A0%87%E5%87%86%E6%97%B6%E9%97%B4)&version=6.26.0&landingPath=NotLandingPage&groups=1%3A1%2C0_175949%3A1%2C0_175955%3A1%2C2%3A1%2C0_175947%3A1%2C3%3A1%2C0_175950%3A1%2C4%3A1%2C0_175962%3A1%2C0_175967%3A1%2C0_175960%3A1%2C0_180698%3A1%2C0_175959%3A1%2C0_180699%3A1%2C0_180707%3A1%2C0_180701%3A1%2C0_182460%3A1%2C0_175963%3A1%2C0_180703%3A1%2C0_180693%3A1%2C0_180697%3A1%2C0_180695%3A1%2C0_180700%3A1%2C0_175964%3A1%2C0_180702%3A1%2C0_180694%3A1%2C0_180706%3A1%2C8%3A1&consentId=f460ce62-468d-4204-927a-e69e4741f2d6&AwaitingReconsent=false; __hssc=117297753.3.1698954156966; _clsk=bafar6|1698954921053|3|1|w.clarity.ms/collect; _ga_JW9S1XHSVS=GS1.1.1698952208.2.1.1698954940.34.0.0'  # 通常，Cookie 也是很重要的，但由于它包含了许多个人信息和会话信息，所以在这里我暂时注释掉了。如果需要，您可以加上。
+}
+
+
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    start_time = datetime.now()
+    result = None
+    time_elapsed = 0
+    if request.method == 'POST':
+        user_input = request.form.get('user_input')
+        if len(user_input) > 300:
+            return render_template('index.html', result="输入的文本超过了 300 个字符。", timeElapsed=time_elapsed)
+
+        # 构建POST数据
+        data = {
+            'action': 'ai_content_detector_recaptcha',
+            'inputs': user_input,
+            'token': ''  # 根据您的信息，token为空
+        }
+
+        response = requests.post('https://writer.com/wp-admin/admin-ajax.php', data=data, headers=HEADERS)
+        response_data = response.json()
+
+        # 根据响应计算AI生成百分比
+        if response_data:
+            ai_percentage = response_data[0]['score'] * 100
+            result = f'AI生成百分比为: {ai_percentage:.2f}%'
+
+        end_time = datetime.now()
+        time_elapsed = (end_time - start_time).seconds
+
+    return render_template('index.html', result=result, timeElapsed=time_elapsed)
+
+if __name__ == '__main__':
+    app.run(debug=False)
+
+```
+
+index.html如下：
+```csharp
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>AI Content Detector</title>
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title mb-4 text-center">AI 内容检测器</h4>
+                    <form action="/" method="post">
+                        <div class="form-group">
+                            <textarea name="user_input" class="form-control" rows="6" placeholder="输入文本..." onkeyup="updateCount(this)">{{ request.form.get('user_input') }}</textarea>
+                            <p id="length-warning" class="text-danger mt-2" style="display: none;">文本超过 300 个字符！</p>
+                            <p id="char-count" class="text-muted mt-2">0/300</p>
+                        </div>
+                        <div class="text-center">
+                            <input type="submit" class="btn btn-primary" value="检测">
+                            <input type="button" class="btn btn-secondary ml-2" value="清空" onclick="clearText()">
+                            <p class="text-muted mt-2">大致需要等待时间为20s</p>
+                            检测时间消耗：<span id="timer">0</span> 秒
+                        </div>
+                    </form>
+                    {% if result %}
+                    <div class="mt-4">
+                        <p class="text-success">{{ result }}</p>
+                        <p class="text-muted">检测消耗时间大约为: <span id="final-timer">{{ timeElapsed }}</span> 秒</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    function updateCount(textarea) {
+        const maxLength = 300;
+        const warning = document.getElementById('length-warning');
+        const charCount = document.getElementById('char-count');
+        const submitButton = document.querySelector('input[type="submit"]');
+
+        const currentLength = textarea.value.length;
+        charCount.textContent = `${currentLength}/${maxLength}`;
+
+        if (currentLength > maxLength) {
+            warning.style.display = 'block';
+            submitButton.disabled = true;
+        } else {
+            warning.style.display = 'none';
+            submitButton.disabled = false;
+        }
+    }
+
+    function clearText() {
+        document.querySelector('textarea').value = '';
+        document.getElementById('char-count').textContent = '0/300';
+        timeElapsed = 0;
+        document.getElementById('timer').textContent = timeElapsed;
+    }
+
+    let timerInterval;
+    let timeElapsed = 0;
+
+    function startTimer() {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+        }
+
+        // Reset time only when starting a new detection
+        timeElapsed = 0;
+        document.getElementById('timer').textContent = timeElapsed;
+
+        timerInterval = setInterval(function() {
+            timeElapsed++;
+            document.getElementById('timer').textContent = timeElapsed;
+        }, 1000);
+    }
+
+    document.querySelector('input[type="submit"]').addEventListener('click', startTimer);
+</script>
+
+
+</body>
+</html>
+
+```
